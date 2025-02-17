@@ -14,4 +14,4 @@ An example of such a command is “insert Whiz 105.”
 
 You will need to use insert to populate the list to test.
 
-Implement your code in Main.java file starting on line 122.
+Implement your code in Main.java file starting on line 91.
