@@ -1,90 +1,84 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Iterator;
+import java.util.Scanner;
 
-/**
- * Programming Challenge 19-4. Top Ten Gamers.
- */
-import java.util.*;
+// Main class for the Swing application
+public class Main extends JFrame {
+    private JTextArea textArea; // Text area to display the list
+    private JTextField cmdTextField; // Text field for command input
+    private SortedLinkedList sll; // Instance of the SortedLinkedList
 
-import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.stage.Stage;
-
-public class Main extends Application
-{
-    private TextArea textArea = new TextArea();
-    private TextField cmdTextField = new TextField();
-    private SortedLinkedList sll = new SortedLinkedList();
-
-    static public void main(String[] args)
-    {
-       launch(args) ;     
-    } 
-
-    @Override
-    public void start(Stage stage) throws Exception
-    {
-        // Command Entry Controls
-        Label cmdLabel = new Label("Insert name score:");        
-        HBox cmdHBox = new HBox(10);
-        cmdHBox.setPadding(new Insets(10, 0, 0, 0));
-        cmdHBox.getChildren().addAll(cmdLabel, cmdTextField);
-
-        // Top Level Pane
-        BorderPane pane = new BorderPane();   
-        pane.setPadding(new Insets(10));
-        pane.setCenter(textArea);
-        pane.setBottom(cmdHBox);
-        textArea.setEditable(false);
-        cmdTextField.setOnAction(new CmdTextListener());
-
-        Scene scene = new Scene(pane);
-        stage.setScene(scene);
-        stage.setTitle("Top Ten Gamers");
-        stage.show();
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new Main().setVisible(true)); // Create and show the GUI
     }
 
-     class CmdTextListener implements EventHandler<ActionEvent>
-    {       
-        public void handle(ActionEvent evt)
-        {
+    public Main() {
+        sll = new SortedLinkedList(); // Initialize the sorted linked list
 
-            String cmd = cmdTextField.getText();
+        // Set up the JFrame
+        setTitle("Top Ten Gamers");
+        setSize(400, 300);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout(10, 10));
+
+        // Create the text area for displaying the list
+        textArea = new JTextArea();
+        textArea.setEditable(false); // Make it non-editable
+        add(new JScrollPane(textArea), BorderLayout.CENTER); // Add scroll pane for text area
+
+        // Create the command input panel
+        JPanel cmdPanel = new JPanel();
+        JLabel cmdLabel = new JLabel("Insert name score:");
+        cmdTextField = new JTextField(20); // Create text field with a width of 20 columns
+
+        // Add the label and text field to the command panel
+        cmdPanel.add(cmdLabel);
+        cmdPanel.add(cmdTextField);
+
+        // Add action listener for the command text field
+        cmdTextField.addActionListener(new CmdTextListener());
+
+        // Add command panel to the bottom of the frame
+        add(cmdPanel, BorderLayout.SOUTH);
+    }
+
+    // Inner class to handle command input
+    class CmdTextListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            String cmd = cmdTextField.getText(); // Get the command text
             Scanner sc = new Scanner(cmd);
             String cmdOp = sc.next();
 
-            if (cmdOp.equalsIgnoreCase("insert"))
-            {
-                if (!sc.hasNext())
-                {
+            if (cmdOp.equalsIgnoreCase("insert")) {
+                // Check for missing name
+                if (!sc.hasNext()) {
                     throw new RuntimeException("Missing name in insert command");
                 }
                 String name = sc.next();
-                if (!sc.hasNextInt())
-                {
+
+                // Check for missing score
+                if (!sc.hasNextInt()) {
                     throw new RuntimeException("Missing score in insert command");
                 }
-                int score = sc.nextInt();                
+                int score = sc.nextInt();
 
-                sll.insert(name, score);                   
+                // Insert the new entry into the sorted linked list
+                sll.insert(name, score);
 
                 // Display the new list
                 Iterator<GameStat> listIter = sll.iterator();
-                textArea.setText("");
+                textArea.setText(""); // Clear the text area
                 int i = 1;
-                while (listIter.hasNext())
-                {                   
+                while (listIter.hasNext()) {
                     GameStat stat = listIter.next();
-                    textArea.appendText(i + " " + stat.toString() + "\n");
-                    i++;                   
-                }                
-                return;
+                    textArea.append(i + " " + stat.toString() + "\n"); // Append each entry to the text area
+                    i++;
+                }
+                cmdTextField.setText(""); // Clear the command text field
             }
         }
     }
